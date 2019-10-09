@@ -27,3 +27,12 @@ Entity Framework Fluent API is used to configure domain classes to ovverride con
 In Entity Framework 6, the DbModelBuilder class acts as a Fluent API using which we can configure many different things. It provides more options of configurations than Data Annotation attributes.
 
 Entity Framework allows you to create a separate class for each entity and place all the configurations related to an entity.
+
+### Idempotency
+
+In this folder we define some classes and managers that will make sure that identical commands will not run be performed twice on the database.
+
+### Repositories
+
+The repositories are the actual implementations of the repository interfaces defined in the domain project. They are implemented here because 
+the infrastructure is responsible for the implementation and technology of the method of data persistance.
