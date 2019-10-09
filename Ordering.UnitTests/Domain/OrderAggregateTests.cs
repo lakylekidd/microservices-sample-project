@@ -10,7 +10,7 @@ namespace Ordering.UnitTests.Domain
 {
     public class OrderAggregateTests
     {
-        [Trait("Order Item", "Unit Tests for Order Item")]
+        [Trait("Order", "Unit Tests for Order Aggregate")]
         [Fact(DisplayName ="Creates an order item successfully")]
         public void Create_order_item_success()
         {
@@ -28,7 +28,7 @@ namespace Ordering.UnitTests.Domain
             Assert.NotNull(fakeOrderItem);
         }
 
-        [Trait("Order Item", "Unit Tests for Order Item")]
+        [Trait("Order", "Unit Tests for Order Aggregate")]
         [Fact(DisplayName = "Will throw error for invalid number of units")]
         public void Invalid_number_of_units()
         {
@@ -44,7 +44,7 @@ namespace Ordering.UnitTests.Domain
             Assert.Throws<OrderingDomainException>(() => new OrderItem(productId, productName, unitPrice, discount, pictureUrl, units));
         }
 
-        [Trait("Order Item", "Unit Tests for Order Item")]
+        [Trait("Order", "Unit Tests for Order Aggregate")]
         [Fact(DisplayName = "Will throw error because discount greater than price")]
         public void Invalid_total_of_order_item_lower_than_discount_applied()
         {
@@ -60,7 +60,7 @@ namespace Ordering.UnitTests.Domain
             Assert.Throws<OrderingDomainException>(() => new OrderItem(productId, productName, unitPrice, discount, pictureUrl, units));
         }
 
-        [Trait("Order Item", "Unit Tests for Order Item")]
+        [Trait("Order", "Unit Tests for Order Aggregate")]
         [Fact(DisplayName = "Will throw error because discount set is less than 0")]
         public void Invalid_discount_setting()
         {
@@ -79,7 +79,7 @@ namespace Ordering.UnitTests.Domain
             Assert.Throws<OrderingDomainException>(() => fakeOrderItem.SetNewDiscount(-1));
         }
 
-        [Trait("Order Item", "Unit Tests for Order Item")]
+        [Trait("Order", "Unit Tests for Order Aggregate")]
         [Fact(DisplayName = "Will throw error because unit set is less than 0")]
         public void Invalid_units_setting()
         {
@@ -98,7 +98,7 @@ namespace Ordering.UnitTests.Domain
             Assert.Throws<OrderingDomainException>(() => fakeOrderItem.AddUnits(-1));
         }
 
-        [Trait("Order Item", "Unit Tests for Order Item")]
+        [Trait("Order", "Unit Tests for Order Aggregate")]
         [Fact(DisplayName = "Adding the same item twice will result in combining total")]        
         public void On_repeated_item_combine_and_sum_totals()
         {
@@ -112,7 +112,7 @@ namespace Ordering.UnitTests.Domain
             Assert.Equal(20.0m, order.GetTotal());
         }
 
-        [Trait("Order Item", "Unit Tests for Order Item")]
+        [Trait("Order", "Unit Tests for Order Aggregate")]
         [Fact(DisplayName = "Adding a new order raises a new event")]
         public void Add_new_Order_raises_new_event()
         {
@@ -136,7 +136,7 @@ namespace Ordering.UnitTests.Domain
             Assert.Equal(fakeOrder.DomainEvents.Count, expectedResult);
         }
 
-        [Trait("Order Item", "Unit Tests for Order Item")]
+        [Trait("Order", "Unit Tests for Order Aggregate")]
         [Fact(DisplayName = "Adding order event explicitly raises a new event")]
         public void Add_event_Order_explicitly_raises_new_event()
         {
@@ -160,7 +160,7 @@ namespace Ordering.UnitTests.Domain
             Assert.Equal(fakeOrder.DomainEvents.Count, expectedResult);
         }
 
-        [Trait("Order Item", "Unit Tests for Order Item")]
+        [Trait("Order", "Unit Tests for Order Aggregate")]
         [Fact(DisplayName = "Removing order event explicitly removes the event")]
         public void Remove_event_Order_explicitly()
         {
