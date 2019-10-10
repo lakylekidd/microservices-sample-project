@@ -1,6 +1,5 @@
 ﻿using Autofac;
 using MediatR;
-using Ordering.API.Application.Commands;
 using System.Reflection;
 
 namespace Ordering.API.Infrastructure.AutofacModules
