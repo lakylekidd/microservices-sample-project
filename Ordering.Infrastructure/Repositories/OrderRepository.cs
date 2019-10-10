@@ -6,7 +6,7 @@ using Ordering.Domain.AggregatesModel.OrderAggregate;
 using Ordering.Domain.SeedWork;
 using Ordering.Infrastructure;
 
-namespace Microsoft.eShopOnContainers.Services.Ordering.Infrastructure.Repositories
+namespace App.Services.Ordering.Infrastructure.Repositories
 {
     public class OrderRepository : IOrderRepository
     {

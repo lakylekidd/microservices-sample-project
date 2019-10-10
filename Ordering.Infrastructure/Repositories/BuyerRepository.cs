@@ -7,7 +7,7 @@ using Ordering.Domain.AggregatesModel.BuyerAggregate;
 using Ordering.Domain.SeedWork;
 using Ordering.Infrastructure;
 
-namespace Microsoft.eShopOnContainers.Services.Ordering.Infrastructure.Repositories
+namespace App.Services.Ordering.Infrastructure.Repositories
 {
     public class BuyerRepository : IBuyerRepository
     {

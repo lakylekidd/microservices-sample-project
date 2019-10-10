@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-using App.Services.Ordering.Infrastructure.Idempotency;
 using Ordering.Domain.Exceptions;
 using Ordering.Infrastructure;
 
-namespace Microsoft.eShopOnContainers.Services.Ordering.Infrastructure.Idempotency
+namespace App.Services.Ordering.Infrastructure.Idempotency
 {
     public class RequestManager : IRequestManager
     {
