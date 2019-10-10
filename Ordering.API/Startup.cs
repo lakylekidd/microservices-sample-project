@@ -42,6 +42,7 @@ namespace Ordering.API
 
             // Register all the Autofac Custom Modules of the Application.
             container.RegisterModule(new ApplicationModule());
+            container.RegisterModule(new MediatorModule());
 
             // Build the autofac container and 
             // and return it as the service provider
