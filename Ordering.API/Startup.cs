@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Autofac.Extensions.DependencyInjection;
 
 using Ordering.API.Infrastructure.AutofacModules;
+using System.Reflection;
 
 namespace Ordering.API
 {
@@ -31,7 +32,11 @@ namespace Ordering.API
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             // Add any services required
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc()
+                // In order to enable functional testing of the entire API
+                // Solution found: https://stackoverflow.com/a/53475731/2677645
+                .AddApplicationPart(Assembly.Load(new AssemblyName("Ordering.API")))
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             // Create a new instance of the Autofac Container
             // This will become the new DI Provider
