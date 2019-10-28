@@ -5,6 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include=".wiki\AvoidingTightCoupling.md" />
+    <None Include=".wiki\DomainVsIntegrationEvents.md" />
+    <None Include=".wiki\ProjectDetails.md" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
   </ItemGroup>
 
