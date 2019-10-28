@@ -40,5 +40,4 @@ namespace Microservices.Library.EventBus.Events
         #endregion
 
     }
-    }
 }
