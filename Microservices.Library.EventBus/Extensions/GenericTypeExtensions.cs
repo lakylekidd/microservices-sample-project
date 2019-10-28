@@ -5,6 +5,11 @@ namespace Microservices.Library.EventBus.Extensions
 {
     public static class GenericTypeExtensions
     {
+        /// <summary>
+        /// Gets the generic type name of a type
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static string GetGenericTypeName(this Type type)
         {
             var typeName = string.Empty;
@@ -22,6 +27,11 @@ namespace Microservices.Library.EventBus.Extensions
             return typeName;
         }
 
+        /// <summary>
+        /// Gets the generic type name of an object
+        /// </summary>
+        /// <param name="object"></param>
+        /// <returns></returns>
         public static string GetGenericTypeName(this object @object)
         {
             return @object.GetType().GetGenericTypeName();
