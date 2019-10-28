@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microservices.Library.Event
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microservices.Library.EventBusRabbitMQ", "Microservices.Library.EventBusRabbitMQ\Microservices.Library.EventBusRabbitMQ.csproj", "{4E81D103-B6C3-4803-87B0-94C8109304DC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microservices.Library.IntegrationEventLogEF", "Microservices.Library.IntegrationEventLogEF\Microservices.Library.IntegrationEventLogEF.csproj", "{8E9D5A7A-8471-49AB-A578-ABD6E803B174}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,6 +69,10 @@ Global
 		{4E81D103-B6C3-4803-87B0-94C8109304DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E81D103-B6C3-4803-87B0-94C8109304DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E81D103-B6C3-4803-87B0-94C8109304DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E9D5A7A-8471-49AB-A578-ABD6E803B174}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E9D5A7A-8471-49AB-A578-ABD6E803B174}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E9D5A7A-8471-49AB-A578-ABD6E803B174}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E9D5A7A-8471-49AB-A578-ABD6E803B174}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -82,6 +88,7 @@ Global
 		{EF039845-BCCD-4735-A2B0-42911C72B118} = {3AE4CE4B-CF2F-499C-A1FF-D709C21C5031}
 		{01D8A47C-6C3F-49ED-A8D9-27FC2BEFC0A9} = {EF039845-BCCD-4735-A2B0-42911C72B118}
 		{4E81D103-B6C3-4803-87B0-94C8109304DC} = {EF039845-BCCD-4735-A2B0-42911C72B118}
+		{8E9D5A7A-8471-49AB-A578-ABD6E803B174} = {EF039845-BCCD-4735-A2B0-42911C72B118}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {849567AB-1E15-4128-9D6C-6C0416292E1C}

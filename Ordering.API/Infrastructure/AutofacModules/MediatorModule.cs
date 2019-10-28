@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using MediatR;
 using System.Reflection;
+using Ordering.API.Application.Behaviors;
 
 namespace Ordering.API.Infrastructure.AutofacModules
 {
@@ -21,6 +22,11 @@ namespace Ordering.API.Infrastructure.AutofacModules
             builder.RegisterAssemblyTypes(assembly)
                 .AsClosedTypesOf(typeof(IRequestHandler<,>))        // Register command classes that implement IRequestHandler
                 .AsClosedTypesOf(typeof(INotificationHandler<>));   // Register domain event classes that implement INotificationHandler
+
+
+            builder.RegisterGeneric(typeof(LoggingBehavior<,>)).As(typeof(IPipelineBehavior<,>));
+            builder.RegisterGeneric(typeof(ValidatorBehavior<,>)).As(typeof(IPipelineBehavior<,>));
+            builder.RegisterGeneric(typeof(TransactionBehaviour<,>)).As(typeof(IPipelineBehavior<,>));
         }
     }
 }

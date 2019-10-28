@@ -9,14 +9,18 @@
 
   <ItemGroup>
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="5.0.1" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="8.5.0" />
     <PackageReference Include="MediatR" Version="7.0.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.7.12" />
+    <PackageReference Include="Serilog.AspNetCore" Version="3.1.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Microservices.Library.EventBus\Microservices.Library.EventBus.csproj" />
+    <ProjectReference Include="..\Microservices.Library.IntegrationEventLogEF\Microservices.Library.IntegrationEventLogEF.csproj" />
     <ProjectReference Include="..\Ordering.Infrastructure\Ordering.Infrastructure.csproj" />
   </ItemGroup>
 

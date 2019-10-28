@@ -1,0 +1,56 @@
+﻿using MediatR;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using FluentValidation;
+using Microsoft.Extensions.Logging;
+
+using Ordering.Domain.Exceptions;
+using Microservices.Library.EventBus.Extensions;
+
+namespace Ordering.API.Application.Behaviors
+{
+    /// <summary>
+    /// The validator behavior is some sort of pipeline that runs before a command is handled by the handler.
+    /// It will attempt to find if any command validators are declared, and if so, it will run them against this command.
+    /// </summary>
+    /// <typeparam name="TRequest"></typeparam>
+    /// <typeparam name="TResponse"></typeparam>
+    public class ValidatorBehavior<TRequest, TResponse> 
+        : IPipelineBehavior<TRequest, TResponse>
+    {
+        private readonly ILogger<ValidatorBehavior<TRequest, TResponse>> _logger;
+        private readonly IValidator<TRequest>[] _validators;
+
+        public ValidatorBehavior(IValidator<TRequest>[] validators, ILogger<ValidatorBehavior<TRequest, TResponse>> logger)
+        {
+            _validators = validators;
+            _logger = logger;
+        }
+
+
+        public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+        {
+            var typeName = request.GetGenericTypeName();
+
+            _logger.LogInformation("----- Validating command {CommandType}", typeName);
+
+            var failures = _validators
+                .Select(v => v.Validate(request))
+                .SelectMany(result => result.Errors)
+                .Where(error => error != null)
+                .ToList();
+
+            // Check if there are any failures, and if there are then throw an exception
+            if (failures.Any())
+            {
+                _logger.LogWarning("Validation errors - {CommandType} - Command: {@Command} - Errors: {@ValidationErrors}", typeName, request, failures);
+
+                throw new OrderingDomainException(
+                    $"Command Validation Errors for type {typeof(TRequest).Name}", new ValidationException("Validation exception", failures));
+            }
+
+            return await next();
+        }
+    }
+}
