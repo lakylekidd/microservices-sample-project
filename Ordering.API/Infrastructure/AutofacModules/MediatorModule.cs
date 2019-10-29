@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using MediatR;
 using System.Reflection;
+using FluentValidation;
 using Ordering.API.Application.Behaviors;
 
 namespace Ordering.API.Infrastructure.AutofacModules
@@ -13,7 +14,10 @@ namespace Ordering.API.Infrastructure.AutofacModules
             var assembly = typeof(Startup).GetTypeInfo().Assembly;
 
             // Register MediatR with Autofac
-            builder.RegisterAssemblyModules(typeof(IMediator).GetTypeInfo().Assembly);
+            //builder.RegisterAssemblyModules(typeof(IMediator).GetTypeInfo().Assembly);
+
+            builder.RegisterAssemblyTypes(typeof(IMediator).GetTypeInfo().Assembly)
+                .AsImplementedInterfaces();
 
             // Register all the classes that implement the following
             // interfaces and that reside in the current assembly.
@@ -23,6 +27,16 @@ namespace Ordering.API.Infrastructure.AutofacModules
                 .AsClosedTypesOf(typeof(IRequestHandler<,>))        // Register command classes that implement IRequestHandler
                 .AsClosedTypesOf(typeof(INotificationHandler<>));   // Register domain event classes that implement INotificationHandler
 
+            // Register the Command's Validators (Validators based on FluentValidation library)
+            builder.RegisterAssemblyTypes(assembly)
+                .Where(t => t.IsClosedTypeOf(typeof(IValidator<>)))
+                .AsImplementedInterfaces();
+
+            builder.Register<ServiceFactory>(context =>
+            {
+                var componentContext = context.Resolve<IComponentContext>();
+                return t => { object o; return componentContext.TryResolve(t, out o) ? o : null; };
+            });
 
             builder.RegisterGeneric(typeof(LoggingBehavior<,>)).As(typeof(IPipelineBehavior<,>));
             builder.RegisterGeneric(typeof(ValidatorBehavior<,>)).As(typeof(IPipelineBehavior<,>));
