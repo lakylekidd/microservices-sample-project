@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using MediatR;
@@ -21,7 +22,13 @@ namespace Ordering.API.Controllers
             _mediator = mediator;
             _logger = logger;
         }
-        
+
+        [HttpGet]
+        public ActionResult<IEnumerable<string>> Get()
+        {
+            return new string[] { "value1", "value2" };
+        }
+
         [HttpPut]
         [Route("cancel")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -45,8 +52,17 @@ namespace Ordering.API.Controllers
                     requestCancelOrder.Command.OrderNumber,
                     requestCancelOrder);
 
-                // Await for the command result
-                commandResult = await _mediator.Send(requestCancelOrder);
+                try
+                {
+                    // Await for the command result
+                    commandResult = await _mediator.Send(requestCancelOrder);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }
+                
             }
 
             // Check if the command has failed

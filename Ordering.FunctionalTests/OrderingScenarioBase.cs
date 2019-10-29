@@ -1,9 +1,11 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microservices.Library.IntegrationEventLogEF;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Ordering.API;
@@ -33,29 +35,34 @@ namespace Ordering.FunctionalTests
                 .ConfigureAppConfiguration(cb =>
                 {
                     cb.AddJsonFile("appsettings.json", optional: false)
-                    .AddEnvironmentVariables();
-                }).UseStartup<OrderingTestsStartup>();
+                        .AddEnvironmentVariables();
+                }).UseStartup<OrderingTestsStartup>()
+                .ConfigureServices(services =>
+                {
+                    services.AddDbContext<OrderingContext>(options =>
+                        options.UseInMemoryDatabase(Guid.NewGuid().ToString()));
+                });
 
             // Create an instance of our test server using the host builder
             var testServer = new TestServer(hostBuilder);
 
-            // Migrate the test ordering context
-            testServer.Host
-                .MigrateDbContext<OrderingContext>((context, services) =>
-                {
-                    var env = services.GetService<IHostingEnvironment>();
-                    var settings = services.GetService<IOptions<OrderingSettings>>();
-                    var logger = services.GetService<ILogger<OrderingContextSeed>>();
+            //// Migrate the test ordering context
+            //testServer.Host
+            //    .MigrateDbContext<OrderingContext>((context, services) =>
+            //    {
+            //        var env = services.GetService<IHostingEnvironment>();
+            //        var settings = services.GetService<IOptions<OrderingSettings>>();
+            //        var logger = services.GetService<ILogger<OrderingContextSeed>>();
 
-                    //var seedContext = new OrderingContextSeed();
+            //        //var seedContext = new OrderingContextSeed();
 
-                    //seedContext.SeedAsync(context, env, settings, logger).Wait();
+            //        //seedContext.SeedAsync(context, env, settings, logger).Wait();
 
-                    new OrderingContextSeed()
-                        .SeedAsync(context, env, settings, logger)
-                        .Wait();
-                })
-                .MigrateDbContext<IntegrationEventLogContext>((_, __) => { });
+            //        new OrderingContextSeed()
+            //            .SeedAsync(context, env, settings, logger)
+            //            .Wait();
+            //    })
+            //    .MigrateDbContext<IntegrationEventLogContext>((_, __) => { });
 
             // Return the test server
             return testServer;
