@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Application\Commands\" />
+    <Folder Include="Application\IntegrationEvents\EventHandlers\" />
   </ItemGroup>
 
 </Project>
