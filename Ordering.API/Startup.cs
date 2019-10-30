@@ -10,7 +10,6 @@ using Autofac.Extensions.DependencyInjection;
 
 using Ordering.API.Infrastructure.AutofacModules;
 using System.Reflection;
-using FluentValidation.AspNetCore;
 using Microservices.Library.EventBus;
 using Microservices.Library.EventBus.Abstractions;
 using Microservices.Library.IntegrationEventLogEF;
@@ -35,6 +34,7 @@ namespace Ordering.API
         /// </summary>
         public IConfiguration Configuration { get; }
 
+        // The constructor
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -84,14 +84,16 @@ namespace Ordering.API
             ConfigureEventBus(app);
         }
 
-        private void ConfigureEventBus(IApplicationBuilder app)
+        // Configure the event bus
+        private static void ConfigureEventBus(IApplicationBuilder app)
         {
             var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
             eventBus.Subscribe<UserCheckoutAcceptedIntegrationEvent, IIntegrationEventHandler<UserCheckoutAcceptedIntegrationEvent>>();
         }
     }
 
-    static class CustomExtensionMethods
+    // Custom extension methods for  the service collection
+    internal static class CustomExtensionMethods
     {
         public static IServiceCollection AddCustomMvc(this IServiceCollection services)
         {
