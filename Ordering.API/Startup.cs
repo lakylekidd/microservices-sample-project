@@ -11,6 +11,8 @@ using Autofac.Extensions.DependencyInjection;
 using Ordering.API.Infrastructure.AutofacModules;
 using System.Reflection;
 using FluentValidation.AspNetCore;
+using Microservices.Library.EventBus;
+using Microservices.Library.EventBus.Abstractions;
 using Microservices.Library.IntegrationEventLogEF;
 using Microservices.Library.IntegrationEventLogEF.Services;
 using Microsoft.AspNetCore.Http;
@@ -21,6 +23,7 @@ using Ordering.API.Infrastructure.Filters;
 using Ordering.API.Infrastructure.Services;
 using Ordering.Infrastructure;
 using Microservices.Library.EventBusRabbitMQ;
+using Ordering.API.Application.IntegrationEvents.Events;
 using RabbitMQ.Client;
 
 namespace Ordering.API
@@ -47,7 +50,8 @@ namespace Ordering.API
             services.AddCustomMvc()
                 .AddCustomDbContext(Configuration)
                 .AddCustomIntegrations(Configuration)
-                .AddCustomConfiguration(Configuration);
+                .AddCustomConfiguration(Configuration)
+                .AddEventBus(Configuration);
 
             // Create a new instance of the Autofac Container
             // This will become the new DI Provider
@@ -75,6 +79,15 @@ namespace Ordering.API
             // Configure the application
             app.UseHttpsRedirection();
             app.UseMvc();
+
+            // Configure the Event Bus
+            ConfigureEventBus(app);
+        }
+
+        private void ConfigureEventBus(IApplicationBuilder app)
+        {
+            var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
+            eventBus.Subscribe<UserCheckoutAcceptedIntegrationEvent, IIntegrationEventHandler<UserCheckoutAcceptedIntegrationEvent>>();
         }
     }
 
@@ -202,6 +215,34 @@ namespace Ordering.API
                     };
                 };
             });
+
+            return services;
+        }
+
+        public static IServiceCollection AddEventBus(this IServiceCollection services, IConfiguration configuration)
+        {
+            var subscriptionClientName = configuration["SubscriptionClientName"];
+
+            if (configuration.GetValue<bool>("AzureServiceBusEnabled") == false)
+            {
+                services.AddSingleton<IEventBus, EventBusRabbitMQ>(sp =>
+                {
+                    var rabbitMQPersistentConnection = sp.GetRequiredService<IRabbitMQPersistentConnection>();
+                    var iLifetimeScope = sp.GetRequiredService<ILifetimeScope>();
+                    var logger = sp.GetRequiredService<ILogger<EventBusRabbitMQ>>();
+                    var eventBusSubcriptionsManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
+
+                    var retryCount = 5;
+                    if (!string.IsNullOrEmpty(configuration["EventBusRetryCount"]))
+                    {
+                        retryCount = int.Parse(configuration["EventBusRetryCount"]);
+                    }
+
+                    return new EventBusRabbitMQ(rabbitMQPersistentConnection, logger, iLifetimeScope, eventBusSubcriptionsManager, subscriptionClientName, retryCount);
+                });
+            }
+
+            services.AddSingleton<IEventBusSubscriptionsManager, InMemoryEventBusSubscriptionsManager>();
 
             return services;
         }
