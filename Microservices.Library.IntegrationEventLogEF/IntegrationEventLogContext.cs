@@ -59,7 +59,7 @@ namespace Microservices.Library.IntegrationEventLogEF
         public IntegrationEventLogContext CreateDbContext(string[] args)
         {
             var optionsBuilder = new DbContextOptionsBuilder<IntegrationEventLogContext>()
-                .UseSqlServer("Server=.;Initial Catalog=Microservices.OrderingDb;Integrated Security=true");
+                .UseSqlServer("Server=.;Initial Catalog=Microservices.IntegrationEventLogDB;Integrated Security=true");
 
             return new IntegrationEventLogContext(optionsBuilder.Options);
         }

@@ -167,7 +167,7 @@ namespace Ordering.Infrastructure
             return new OrderingContext(optionsBuilder.Options, new NoMediator());
         }
 
-        class NoMediator : IMediator
+        private class NoMediator : IMediator
         {
             public Task Publish<TNotification>(TNotification notification, CancellationToken cancellationToken = default(CancellationToken)) 
                 where TNotification : INotification
