@@ -6,7 +6,10 @@ namespace Ordering.FunctionalTests
 {
     public class OrderingTestsStartup : Startup
     {
-        public OrderingTestsStartup(IConfiguration env) : base(env)
-        { }
+        public OrderingTestsStartup(IConfiguration env)
+            : base(env)
+        {
+
+        }
     }
 }

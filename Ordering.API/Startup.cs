@@ -139,7 +139,7 @@ namespace Ordering.API
 
             services.AddDbContext<IntegrationEventLogContext>(options =>
             {
-                options.UseSqlServer(configuration["ConnectionString"],
+                options.UseSqlServer(configuration["IntegrationEventLogConnectionString"],
                     sqlServerOptionsAction: sqlOptions =>
                     {
                         sqlOptions.MigrationsAssembly(typeof(IntegrationEventLogContext).GetTypeInfo().Assembly.GetName().Name);
@@ -155,8 +155,8 @@ namespace Ordering.API
         {
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddTransient<IIdentityService, IdentityService>();
-            services.AddTransient<Func<DbConnection, IIntegrationEventLogService>>(
-                sp => (DbConnection c) => new IntegrationEventLogService(c));
+            services.AddTransient<Func<DbConnection, IIntegrationEventLogService>>(sp => (DbConnection c) => new IntegrationEventLogService(c));
+            services.AddTransient<Func<string, IIntegrationEventLogService>>(sp => (string c) => new IntegrationEventLogService(c));
 
             services.AddTransient<IOrderingIntegrationEventService, OrderingIntegrationEventService>();
 

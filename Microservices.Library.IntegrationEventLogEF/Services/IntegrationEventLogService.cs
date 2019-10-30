@@ -37,6 +37,20 @@ namespace Microservices.Library.IntegrationEventLogEF.Services
                 .ToList();
         }
 
+        public IntegrationEventLogService(string connectionString)
+        {
+            _integrationEventLogContext = new IntegrationEventLogContext(
+                new DbContextOptionsBuilder<IntegrationEventLogContext>()
+                    .UseSqlServer(connectionString)
+                    .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.QueryClientEvaluationWarning))
+                    .Options);
+
+            _eventTypes = Assembly.Load(Assembly.GetEntryAssembly().FullName)
+                .GetTypes()
+                .Where(t => t.Name.EndsWith(nameof(IntegrationEvent)))
+                .ToList();
+        }
+
         // Retrieve all event logs that are pending based on provided transaction id
         public async Task<IEnumerable<IntegrationEventLogEntry>> RetrieveEventLogsPendingToPublishAsync(Guid transactionId)
         {

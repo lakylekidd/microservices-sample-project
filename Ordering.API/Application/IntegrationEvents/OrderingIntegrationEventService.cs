@@ -8,6 +8,7 @@ using Microservices.Library.EventBus.Events;
 using Microservices.Library.IntegrationEventLogEF;
 using Microservices.Library.IntegrationEventLogEF.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Ordering.Infrastructure;
 
@@ -22,7 +23,7 @@ namespace Ordering.API.Application.IntegrationEvents
          * PRIVATE FUNCTIONS
          */
 
-        private readonly Func<DbConnection, IIntegrationEventLogService> _integrationEventLogServiceFactory;
+        private readonly Func<string, IIntegrationEventLogService> _integrationEventLogServiceFactory;
         private readonly IEventBus _eventBus;
         private readonly OrderingContext _orderingContext;
         private readonly IntegrationEventLogContext _eventLogContext;
@@ -33,14 +34,16 @@ namespace Ordering.API.Application.IntegrationEvents
         public OrderingIntegrationEventService(IEventBus eventBus,
             OrderingContext orderingContext,
             IntegrationEventLogContext eventLogContext,
-            Func<DbConnection, IIntegrationEventLogService> integrationEventLogServiceFactory,
-            ILogger<OrderingIntegrationEventService> logger)
+            Func<string, IIntegrationEventLogService> integrationEventLogServiceFactory,
+            ILogger<OrderingIntegrationEventService> logger,
+            IConfiguration configuration)
         {
             _orderingContext = orderingContext ?? throw new ArgumentNullException(nameof(orderingContext));
             _eventLogContext = eventLogContext ?? throw new ArgumentNullException(nameof(eventLogContext));
             _integrationEventLogServiceFactory = integrationEventLogServiceFactory ?? throw new ArgumentNullException(nameof(integrationEventLogServiceFactory));
             _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
-            _eventLogService = _integrationEventLogServiceFactory(_orderingContext.Database.GetDbConnection());
+            //_eventLogService = _integrationEventLogServiceFactory(_orderingContext.Database.GetDbConnection());
+            _eventLogService = _integrationEventLogServiceFactory(configuration["IntegrationEventLogConnectionString"]);
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 

@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -37,10 +38,18 @@ namespace Ordering.FunctionalTests
             using (var server = CreateServer())
             {
                 var content = new StringContent(BuildOrder(), Encoding.UTF8, "application/json");
-                var response = await server.CreateIdempotentClient()
-                    .PutAsync(Endpoints.Put.CancelOrder, content);
-
-                Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+                try
+                {
+                    var response = await server.CreateIdempotentClient()
+                        .PutAsync(Endpoints.Put.CancelOrder, content);
+                    Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }
+                
             }
         }
 
