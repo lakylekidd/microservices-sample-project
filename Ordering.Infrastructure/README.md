@@ -36,3 +36,12 @@ In this folder we define some classes and managers that will make sure that iden
 
 The repositories are the actual implementations of the repository interfaces defined in the domain project. They are implemented here because 
 the infrastructure is responsible for the implementation and technology of the method of data persistance.
+
+### Migrations
+
+In order to create the migrations, I've used the following article:
+
+> https://dotnetthoughts.net/using-ef-core-in-a-separate-class-library/
+
+So basically, to create the first migration I ran the command: `dotnet ef migrations add InitialMigrations --project ..\Ordering.Infrastructure\Ordering.Infrastructure.csproj --startup-project .\Ordering.API.csproj`. However 
+we also need to create the integration database migrations, so for this I ran: `dotnet ef migrations add InitialMigrations --project ..\Microservices.Library.IntegrationEventLogEF\Microservices.Library.IntegrationEventLogEF.csproj --startup-project .\Ordering.API.csproj`

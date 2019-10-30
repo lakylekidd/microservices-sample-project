@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Microservices.Library.IntegrationEventLogEF
@@ -50,6 +51,17 @@ namespace Microservices.Library.IntegrationEventLogEF
             builder.Property(e => e.EventTypeName)
                 .IsRequired();
 
+        }
+    }
+
+    public class OrderingContextDesignFactory : IDesignTimeDbContextFactory<IntegrationEventLogContext>
+    {
+        public IntegrationEventLogContext CreateDbContext(string[] args)
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<IntegrationEventLogContext>()
+                .UseSqlServer("Server=.;Initial Catalog=Microservices.OrderingDb;Integrated Security=true");
+
+            return new IntegrationEventLogContext(optionsBuilder.Options);
         }
     }
 }
