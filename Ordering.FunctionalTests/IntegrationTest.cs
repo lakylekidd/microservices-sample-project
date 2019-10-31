@@ -1,22 +1,28 @@
 ﻿using System.Net.Http;
+using System.Reflection;
 using Microservices.Library.IntegrationEventLogEF;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Ordering.API;
+using Ordering.FunctionalTests.Helpers;
 using Ordering.Infrastructure;
 
 namespace Ordering.FunctionalTests
 {
     public abstract class IntegrationTest
     {
+        /// <summary>
+        /// A test http client used for testing your app
+        /// </summary>
         protected readonly HttpClient TestHttpClient;
 
         protected IntegrationTest()
         {
             // Create the web application factory
-            var appFactory = new WebApplicationFactory<OrderingTestsStartup>()
+            var appFactory = new CustomWebApplicationFactory<Startup>()
                 .WithWebHostBuilder(builder =>
                 {
                     // At this point of our code, all the services have already been configured
