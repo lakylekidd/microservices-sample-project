@@ -52,17 +52,9 @@ namespace Ordering.API.Controllers
                     requestCancelOrder.Command.OrderNumber,
                     requestCancelOrder);
 
-                try
-                {
-                    // Await for the command result
-                    commandResult = await _mediator.Send(requestCancelOrder);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    throw;
-                }
-                
+                // Await for the command result
+                commandResult = await _mediator.Send(requestCancelOrder);
+
             }
 
             // Check if the command has failed

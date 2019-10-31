@@ -170,8 +170,10 @@ namespace Ordering.API
                     var factory = new ConnectionFactory()
                     {
                         HostName = configuration["EventBusConnection"],
-                        DispatchConsumersAsync = true
+                        DispatchConsumersAsync = true, 
                     };
+
+                    //factory.Uri = new Uri(configuration["RabbitMQUri"]);
 
                     if (!string.IsNullOrEmpty(configuration["EventBusUserName"]))
                     {
@@ -181,6 +183,16 @@ namespace Ordering.API
                     if (!string.IsNullOrEmpty(configuration["EventBusPassword"]))
                     {
                         factory.Password = configuration["EventBusPassword"];
+                    }
+
+                    if (!string.IsNullOrEmpty(configuration["EventBusPort"]))
+                    {
+                        factory.Port = int.Parse(configuration["EventBusPort"]);
+                    }
+
+                    if (!string.IsNullOrEmpty(configuration["EventBusVHost"]))
+                    {
+                        factory.VirtualHost = configuration["EventBusVHost"];
                     }
 
                     var retryCount = 5;

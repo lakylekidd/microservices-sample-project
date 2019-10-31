@@ -30,23 +30,6 @@ namespace Ordering.FunctionalTests
             var path = Assembly.GetAssembly(typeof(OrderingScenarioBase))
                 .Location;
 
-            // Build our host using the web host builder
-            //var hostBuilder = new WebHostBuilder()
-            //    .UseContentRoot(Path.GetDirectoryName(path))
-            //    .ConfigureAppConfiguration(cb =>
-            //    {
-            //        cb.AddJsonFile("appsettings.json", optional: false)
-            //            .AddEnvironmentVariables();
-            //    }).UseStartup<OrderingTestsStartup>()
-            //    .ConfigureServices(services =>
-            //    {
-            //        services.AddDbContext<OrderingContext>(options =>
-            //            options.UseInMemoryDatabase(Guid.NewGuid().ToString()));
-            //        services.AddDbContext<IntegrationEventLogContext>(options =>
-            //            options.UseInMemoryDatabase(Guid.NewGuid().ToString()));
-            //    });
-
-
             var hostBuilder = new WebHostBuilder()
                 .UseContentRoot(Path.GetDirectoryName(path))
                 .ConfigureAppConfiguration(cb =>
@@ -54,54 +37,28 @@ namespace Ordering.FunctionalTests
                     cb.AddJsonFile("appsettings.json", optional: false)
                         .AddEnvironmentVariables();
                 })
-                .ConfigureServices(services =>
-                {
-                    services.AddDbContext<OrderingContext>(options =>
-                    {
-                        options.ConfigureWarnings(builder => builder.Ignore(InMemoryEventId.TransactionIgnoredWarning));
-                        options.UseInMemoryDatabase(Guid.NewGuid().ToString());
-                    });
-                    services.AddDbContext<IntegrationEventLogContext>(options =>
-                    {
-                        options.ConfigureWarnings(builder => builder.Ignore(InMemoryEventId.TransactionIgnoredWarning));
-                        options.UseInMemoryDatabase(Guid.NewGuid().ToString());
-                    });
-                })
+                //.ConfigureServices(services =>
+                //{
+                //    services.AddDbContext<OrderingContext>(options =>
+                //    {
+                //        options.ConfigureWarnings(builder => builder.Ignore(InMemoryEventId.TransactionIgnoredWarning));
+                //        options.UseInMemoryDatabase(Guid.NewGuid().ToString());
+                //    });
+                //    services.AddDbContext<IntegrationEventLogContext>(options =>
+                //    {
+                //        options.ConfigureWarnings(builder => builder.Ignore(InMemoryEventId.TransactionIgnoredWarning));
+                //        options.UseInMemoryDatabase(Guid.NewGuid().ToString());
+                //    });
+                //})
                 .UseStartup<OrderingTestsStartup>();
             
             // Create an instance of our test server using the host builder
             var testServer = new TestServer(hostBuilder);
 
-            //testServer.Host
-            //    .MigrateDbContext<OrderingContext>((context, services) =>
-            //    {
-            //        var env = services.GetService<IHostingEnvironment>();
-            //        var settings = services.GetService<IOptions<OrderingSettings>>();
-            //        var logger = services.GetService<ILogger<OrderingContextSeed>>();
-
-            //        new OrderingContextSeed()
-            //            .SeedAsync(context, env, settings, logger)
-            //            .Wait();
-            //    })
-            //    .MigrateDbContext<IntegrationEventLogContext>((_, __) => { });
-
-            //// Migrate the test ordering context
-            //testServer.Host
-            //    .MigrateDbContext<OrderingContext>((context, services) =>
-            //    {
-            //        var env = services.GetService<IHostingEnvironment>();
-            //        var settings = services.GetService<IOptions<OrderingSettings>>();
-            //        var logger = services.GetService<ILogger<OrderingContextSeed>>();
-
-            //        //var seedContext = new OrderingContextSeed();
-
-            //        //seedContext.SeedAsync(context, env, settings, logger).Wait();
-
-            //        new OrderingContextSeed()
-            //            .SeedAsync(context, env, settings, logger)
-            //            .Wait();
-            //    })
-            //    .MigrateDbContext<IntegrationEventLogContext>((_, __) => { });
+            testServer.Host.MigrateDbContext<OrderingContext>((context, services) =>
+                {
+                })
+                .MigrateDbContext<IntegrationEventLogContext>((_, __) => { });
 
             // Return the test server
             return testServer;
