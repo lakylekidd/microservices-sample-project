@@ -13,7 +13,7 @@ namespace Ordering.FunctionalTests
 
         public static class Post
         {
-
+            public static string CreateOrder = "api/v1/orders/create";
         }
 
         public static class Put

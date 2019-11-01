@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using System;
+using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using App.Services.Ordering.Infrastructure.Idempotency;
 using Microservices.Library.EventBus.Extensions;
 using Ordering.API.Application.Commands;
+using Ordering.Infrastructure;
 
 namespace Ordering.API.Application.CommandHandlers
 {
@@ -76,10 +78,10 @@ namespace Ordering.API.Application.CommandHandlers
                             commandId = createOrderCommand.UserId;
                             break;
 
-                        //case CancelOrderCommand cancelOrderCommand:
-                        //    idProperty = nameof(cancelOrderCommand.OrderNumber);
-                        //    commandId = $"{cancelOrderCommand.OrderNumber}";
-                        //    break;
+                        case CancelOrderCommand cancelOrderCommand:
+                            idProperty = nameof(cancelOrderCommand.OrderNumber);
+                            commandId = $"{cancelOrderCommand.OrderNumber}";
+                            break;
 
                         //case ShipOrderCommand shipOrderCommand:
                         //    idProperty = nameof(shipOrderCommand.OrderNumber);
@@ -114,7 +116,7 @@ namespace Ordering.API.Application.CommandHandlers
 
                     return result;
                 }
-                catch
+                catch(Exception e)
                 {
                     return default(R);
                 }

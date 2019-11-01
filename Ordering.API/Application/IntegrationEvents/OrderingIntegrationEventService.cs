@@ -23,7 +23,7 @@ namespace Ordering.API.Application.IntegrationEvents
          * PRIVATE FUNCTIONS
          */
 
-        private readonly Func<string, IIntegrationEventLogService> _integrationEventLogServiceFactory;
+        private readonly Func<DbConnection, IIntegrationEventLogService> _integrationEventLogServiceFactory;
         private readonly IEventBus _eventBus;
         private readonly OrderingContext _orderingContext;
         private readonly IntegrationEventLogContext _eventLogContext;
@@ -34,7 +34,7 @@ namespace Ordering.API.Application.IntegrationEvents
         public OrderingIntegrationEventService(IEventBus eventBus,
             OrderingContext orderingContext,
             IntegrationEventLogContext eventLogContext,
-            Func<string, IIntegrationEventLogService> integrationEventLogServiceFactory,
+            Func<DbConnection, IIntegrationEventLogService> integrationEventLogServiceFactory,
             ILogger<OrderingIntegrationEventService> logger,
             IConfiguration configuration)
         {
@@ -42,8 +42,8 @@ namespace Ordering.API.Application.IntegrationEvents
             _eventLogContext = eventLogContext ?? throw new ArgumentNullException(nameof(eventLogContext));
             _integrationEventLogServiceFactory = integrationEventLogServiceFactory ?? throw new ArgumentNullException(nameof(integrationEventLogServiceFactory));
             _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
-            //_eventLogService = _integrationEventLogServiceFactory(_orderingContext.Database.GetDbConnection());
-            _eventLogService = _integrationEventLogServiceFactory(configuration["IntegrationEventLogConnectionString"]);
+            _eventLogService = _integrationEventLogServiceFactory(_orderingContext.Database.GetDbConnection());
+            //_eventLogService = _integrationEventLogServiceFactory(configuration["IntegrationEventLogConnectionString"]);
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -92,7 +92,8 @@ namespace Ordering.API.Application.IntegrationEvents
             // Log enqueuing integration event
             _logger.LogInformation("----- Enqueuing integration event {IntegrationEventId} to repository ({@IntegrationEvent})", evt.Id, evt);
             // Save the event async
-            await _eventLogService.SaveEventAsync(evt, _orderingContext.GetCurrentTransaction());
+            var transaction = _orderingContext.GetCurrentTransaction();
+            await _eventLogService.SaveEventAsync(evt, transaction);
         }
     }
 }

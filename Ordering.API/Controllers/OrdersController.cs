@@ -33,7 +33,8 @@ namespace Ordering.API.Controllers
         [Route("cancel")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> CancelOrderAsync([FromBody]CancelOrderCommand command, [FromHeader(Name = "x-requestid")] string requestId)
+        public async Task<IActionResult> CancelOrderAsync([FromBody]CancelOrderCommand command, 
+            [FromHeader(Name = "x-requestid")] string requestId)
         {
             // Declare a variable tha twill hold the command result
             var commandResult = false;
@@ -55,6 +56,42 @@ namespace Ordering.API.Controllers
                 // Await for the command result
                 commandResult = await _mediator.Send(requestCancelOrder);
 
+            }
+
+            // Check if the command has failed
+            if (!commandResult)
+            {
+                return BadRequest();
+            }
+
+            // Request successfully completed
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("create")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> CreateOrderAsync([FromBody] CreateOrderCommand command,
+            [FromHeader(Name = "x-requestid")] string requestId)
+        {
+            // Declare a variable tha twill hold the command result
+            var commandResult = false;
+
+            // Check if the request id is provided
+            if (Guid.TryParse(requestId, out Guid guid) && guid != Guid.Empty)
+            {
+                // Convert the command into an identified command
+                var requestCreateCommand = new IdentifiedCommand<CreateOrderCommand, bool>(command, guid);
+
+                // Log sending the identified command
+                _logger.LogInformation(
+                    "----- Sending command: {CommandName} - ({@Command})",
+                    requestCreateCommand.GetGenericTypeName(),
+                    requestCreateCommand);
+
+                // Await for the command result
+                commandResult = await _mediator.Send(requestCreateCommand);
             }
 
             // Check if the command has failed

@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Storage;
-
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 using Ordering.Domain.AggregatesModel.BuyerAggregate;
 using Ordering.Domain.AggregatesModel.OrderAggregate;
 using Ordering.Domain.SeedWork;
@@ -22,6 +23,10 @@ namespace Ordering.Infrastructure
         public const string DEFAULT_SCHEMA = "ordering";
 
         private readonly IMediator _mediator;
+        //static LoggerFactory object
+        public static readonly ILoggerFactory loggerFactory = new LoggerFactory(new[] {
+            new ConsoleLoggerProvider((_, __) => true, true)
+        });
         private IDbContextTransaction _currentTransaction;
 
         #region ENTITY DBSETS
@@ -39,7 +44,8 @@ namespace Ordering.Infrastructure
         private OrderingContext(DbContextOptions<OrderingContext> options) 
             : base(options) { }
 
-        public OrderingContext(DbContextOptions<OrderingContext> options, IMediator mediator) : base(options)
+        public OrderingContext(DbContextOptions<OrderingContext> options, IMediator mediator) 
+            : base(options)
         {
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
             System.Diagnostics.Debug.WriteLine("OrderingContext::ctor ->" + this.GetHashCode());
@@ -70,6 +76,13 @@ namespace Ordering.Infrastructure
             modelBuilder.ApplyConfiguration(new CardTypeEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new OrderStatusEntityTypeConfiguration());
             modelBuilder.ApplyConfiguration(new BuyerEntityTypeConfiguration());
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseLoggerFactory(loggerFactory)
+                .EnableSensitiveDataLogging();
+            base.OnConfiguring(optionsBuilder);
         }
 
         /// <summary>

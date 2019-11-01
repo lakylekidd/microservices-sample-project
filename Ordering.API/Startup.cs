@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using Autofac;
 using Microsoft.AspNetCore.Builder;
@@ -174,6 +175,11 @@ namespace Ordering.API
                     };
 
                     //factory.Uri = new Uri(configuration["RabbitMQUri"]);
+
+                    if (!string.IsNullOrEmpty(configuration["EventBusEndpoint"]))
+                    {
+                        factory.Endpoint = new AmqpTcpEndpoint(configuration["EventBusEndpoint"]); ;
+                    }
 
                     if (!string.IsNullOrEmpty(configuration["EventBusUserName"]))
                     {

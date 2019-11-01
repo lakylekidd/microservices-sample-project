@@ -1,23 +1,25 @@
 ﻿using System.Net.Http;
-using System.Reflection;
-using Microservices.Library.IntegrationEventLogEF;
-using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.AspNetCore.TestHost;
 using Ordering.API;
 using Ordering.FunctionalTests.Helpers;
-using Ordering.Infrastructure;
 
 namespace Ordering.FunctionalTests
 {
     public abstract class IntegrationTest
     {
         /// <summary>
-        /// A test http client used for testing your app
+        /// An idempotent test http client used for testing your app
+        /// </summary>
+        protected readonly HttpClient TestIdempotentHttpClient;
+        /// <summary>
+        /// A test http client used for testing yoru app
         /// </summary>
         protected readonly HttpClient TestHttpClient;
+
+        /// <summary>
+        /// The test server
+        /// </summary>
+        protected readonly TestServer TestServer;
 
         protected IntegrationTest()
         {
@@ -29,34 +31,14 @@ namespace Ordering.FunctionalTests
                     // In this section we can reconfigure some of them.
                     builder.ConfigureServices(services =>
                     {
-                        // Remove all instances of db contexts and 
-                        // replace them with the in-memory ones
-                        services.RemoveAll(typeof(IntegrationEventLogContext));
-                        services.RemoveAll(typeof(OrderingContext));
-                        // Add in-memory contexts
-                        services
-                            .AddDbContext<OrderingContext>(options =>
-                            {
-                                options.UseInMemoryDatabase("OrderingTestDB");
-                                // Configure to ignore any warnings
-                                options.ConfigureWarnings(warningBuilder =>
-                                {
-                                    warningBuilder.Ignore(InMemoryEventId.TransactionIgnoredWarning);
-                                });
-                            })
-                            .AddDbContext<IntegrationEventLogContext>(options =>
-                            {
-                                options.UseInMemoryDatabase("IntegrationEventLogDB");
-                                // Configure to ignore any warnings
-                                options.ConfigureWarnings(warningBuilder =>
-                                {
-                                    warningBuilder.Ignore(InMemoryEventId.TransactionIgnoredWarning);
-                                });
-                            });
+                        // Reconfigure services here
                     });
                 });
             // Create the test http client
             TestHttpClient = appFactory.CreateClient();
+            TestIdempotentHttpClient = appFactory.Server.CreateIdempotentClient();
+            // Create the test server
+            TestServer = appFactory.Server;
         }
     }
 }

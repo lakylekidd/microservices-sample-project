@@ -26,8 +26,8 @@ namespace Ordering.API.Infrastructure.AutofacModules
                 .InstancePerLifetimeScope();
 
             builder.RegisterType<RequestManager>()
-               .As<IRequestManager>()
-               .InstancePerLifetimeScope();
+                .As<IRequestManager>()
+                .InstancePerLifetimeScope();
 
             builder.RegisterAssemblyTypes(typeof(CreateOrderCommandHandler).GetTypeInfo().Assembly)
                 .AsClosedTypesOf(typeof(IIntegrationEventHandler<>));

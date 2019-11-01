@@ -18,10 +18,17 @@ namespace App.Services.Ordering.Infrastructure.Idempotency
 
         public async Task<bool> ExistAsync(Guid id)
         {
-            var request = await _context.
-                FindAsync<ClientRequest>(id);
-
-            return request != null;
+            try
+            {
+                var r = await _context.Buyers.FindAsync(1);
+                var request = await _context.FindAsync<ClientRequest>(id);
+                return request != null;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         public async Task CreateRequestForCommandAsync<T>(Guid id)

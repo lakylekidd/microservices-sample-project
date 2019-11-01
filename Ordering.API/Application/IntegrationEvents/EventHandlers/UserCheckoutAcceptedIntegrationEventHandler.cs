@@ -65,7 +65,7 @@ namespace Ordering.API.Application.IntegrationEvents.EventHandlers
 
                         if (result)
                         {
-                            _logger.LogInformation("----- CreateOrderCommand suceeded - RequestId: {RequestId}", @event.RequestId);
+                            _logger.LogInformation("----- CreateOrderCommand succeeded - RequestId: {RequestId}", @event.RequestId);
                         }
                         else
                         {
