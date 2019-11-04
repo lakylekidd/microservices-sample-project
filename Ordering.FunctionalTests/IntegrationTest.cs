@@ -12,7 +12,7 @@ namespace Ordering.FunctionalTests
         /// </summary>
         protected readonly HttpClient TestIdempotentHttpClient;
         /// <summary>
-        /// A test http client used for testing yoru app
+        /// A test http client used for testing your app
         /// </summary>
         protected readonly HttpClient TestHttpClient;
 
