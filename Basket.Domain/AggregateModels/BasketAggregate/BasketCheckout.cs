@@ -81,5 +81,10 @@ namespace Basket.Domain.AggregateModels.BasketAggregate
             Buyer = buyer;
             RequestId = requestId;
         }
+
+        public void SetRequestId(Guid requestId)
+        {
+            RequestId = requestId;
+        }
     }
 }

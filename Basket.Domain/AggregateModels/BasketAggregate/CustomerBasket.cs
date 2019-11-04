@@ -17,6 +17,11 @@ namespace Basket.Domain.AggregateModels.BasketAggregate
         /// </summary>
         public IEnumerable<BasketItem> Items => _items.AsReadOnly();
 
+        public CustomerBasket()
+        {
+
+        }
+
         public CustomerBasket(string buyerId)
         {
             BuyerId = buyerId;
