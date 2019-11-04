@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -16,6 +17,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace Basket.API
 {
@@ -33,7 +35,8 @@ namespace Basket.API
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddCustomIntegrations(Configuration)
-                .AddEventBus(Configuration);
+                .AddEventBus(Configuration)
+                .AddSwagger(Configuration);
 
             RegisterEventBus(services);
 
@@ -45,8 +48,23 @@ namespace Basket.API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            var pathBase = Configuration["PATH_BASE"];
+            if (!string.IsNullOrEmpty(pathBase))
+            {
+                app.UsePathBase(pathBase);
+            }
+            
             app.UseHttpsRedirection();
             app.UseMvc();
+
+            // Use Swagger
+            app.UseSwagger()
+                .UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint($"{ (!string.IsNullOrEmpty(pathBase) ? pathBase : string.Empty) }/swagger/v1/swagger.json", "Basket.API V1");
+                    //c.OAuthClientId("basketswaggerui");
+                    //c.OAuthAppName("Basket Swagger UI");
+                });
 
             ConfigureEventBus(app);
         }
@@ -166,6 +184,38 @@ namespace Basket.API
             }
 
             services.AddSingleton<IEventBusSubscriptionsManager, InMemoryEventBusSubscriptionsManager>();
+
+            return services;
+        }
+
+        public static IServiceCollection AddSwagger(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddSwaggerGen(options =>
+            {
+                options.DescribeAllEnumsAsStrings();
+                options.SwaggerDoc("v1", new Info
+                {
+                    Title = "Basket HTTP API",
+                    Version = "v1",
+                    Description = "The Basket Service HTTP API",
+                    TermsOfService = "Terms Of Service"
+                });
+
+                // Enable for authorization
+                //options.AddSecurityDefinition("oauth2", new OAuth2Scheme
+                //{
+                //    Type = "oauth2",
+                //    Flow = "implicit",
+                //    AuthorizationUrl = $"{Configuration.GetValue<string>("IdentityUrlExternal")}/connect/authorize",
+                //    TokenUrl = $"{Configuration.GetValue<string>("IdentityUrlExternal")}/connect/token",
+                //    Scopes = new Dictionary<string, string>()
+                //    {
+                //        { "basket", "Basket API" }
+                //    }
+                //});
+
+                // options.OperationFilter<AuthorizeCheckOperationFilter>();
+            });
 
             return services;
         }
