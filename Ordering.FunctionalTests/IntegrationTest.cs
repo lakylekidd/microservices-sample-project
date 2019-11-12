@@ -1,7 +1,14 @@
 ﻿using System.Net.Http;
+using Microservices.Library.IntegrationEventLogEF;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Ordering.API;
+using Ordering.API.Application.Behaviors;
 using Ordering.FunctionalTests.Helpers;
+using Ordering.Infrastructure;
 
 namespace Ordering.FunctionalTests
 {
@@ -31,7 +38,33 @@ namespace Ordering.FunctionalTests
                     // In this section we can reconfigure some of them.
                     builder.ConfigureServices(services =>
                     {
-                        // Reconfigure services here
+                        // Remove all instances of db contexts and 
+                        // replace them with the in-memory ones
+                        services.RemoveAll(typeof(IntegrationEventLogContext));
+                        services.RemoveAll(typeof(OrderingContext));
+                        // Disable the use of transactional behaviour
+                        services.RemoveAll(typeof(TransactionBehaviour<,>));
+
+                        // Add in-memory contexts
+                        services
+                            .AddDbContext<OrderingContext>(options =>
+                            {
+                                options.UseInMemoryDatabase("OrderingTestDB");
+                                // Configure to ignore any warnings
+                                options.ConfigureWarnings(warningBuilder =>
+                                {
+                                    warningBuilder.Ignore(InMemoryEventId.TransactionIgnoredWarning);
+                                });
+                            })
+                            .AddDbContext<IntegrationEventLogContext>(options =>
+                            {
+                                options.UseInMemoryDatabase("IntegrationEventLogTestDB");
+                                // Configure to ignore any warnings
+                                options.ConfigureWarnings(warningBuilder =>
+                                {
+                                    warningBuilder.Ignore(InMemoryEventId.TransactionIgnoredWarning);
+                                });
+                            });
                     });
                 });
             // Create the test http client
