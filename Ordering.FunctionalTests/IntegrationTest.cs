@@ -1,4 +1,7 @@
 ﻿using System.Net.Http;
+using Microservices.Library.EventBus;
+using Microservices.Library.EventBus.Abstractions;
+using Microservices.Library.EventBusRabbitMQ;
 using Microservices.Library.IntegrationEventLogEF;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
@@ -30,48 +33,52 @@ namespace Ordering.FunctionalTests
 
         protected IntegrationTest()
         {
-            // Create the web application factory
-            var appFactory = new CustomWebApplicationFactory<Startup>()
-                .WithWebHostBuilder(builder =>
-                {
-                    // At this point of our code, all the services have already been configured
-                    // In this section we can reconfigure some of them.
-                    builder.ConfigureServices(services =>
-                    {
-                        // Remove all instances of db contexts and 
-                        // replace them with the in-memory ones
-                        services.RemoveAll(typeof(IntegrationEventLogContext));
-                        services.RemoveAll(typeof(OrderingContext));
-                        // Disable the use of transactional behaviour
-                        services.RemoveAll(typeof(TransactionBehaviour<,>));
+            //// Create the web application factory
+            //var appFactory = new CustomWebApplicationFactory<Startup>()
+            //    .WithWebHostBuilder(builder =>
+            //    {
+            //        // At this point of our code, all the services have already been configured
+            //        // In this section we can reconfigure some of them.
+            //        builder.ConfigureServices(services =>
+            //        {
+            //            // Remove all instances of db contexts and 
+            //            // replace them with the in-memory ones
+            //            services.RemoveAll(typeof(IntegrationEventLogContext));
+            //            services.RemoveAll(typeof(OrderingContext));
 
-                        // Add in-memory contexts
-                        services
-                            .AddDbContext<OrderingContext>(options =>
-                            {
-                                options.UseInMemoryDatabase("OrderingTestDB");
-                                // Configure to ignore any warnings
-                                options.ConfigureWarnings(warningBuilder =>
-                                {
-                                    warningBuilder.Ignore(InMemoryEventId.TransactionIgnoredWarning);
-                                });
-                            })
-                            .AddDbContext<IntegrationEventLogContext>(options =>
-                            {
-                                options.UseInMemoryDatabase("IntegrationEventLogTestDB");
-                                // Configure to ignore any warnings
-                                options.ConfigureWarnings(warningBuilder =>
-                                {
-                                    warningBuilder.Ignore(InMemoryEventId.TransactionIgnoredWarning);
-                                });
-                            });
-                    });
-                });
-            // Create the test http client
-            TestHttpClient = appFactory.CreateClient();
-            TestIdempotentHttpClient = appFactory.Server.CreateIdempotentClient();
-            // Create the test server
-            TestServer = appFactory.Server;
+            //            // Disable the use of transactional behaviour
+            //            services.RemoveAll(typeof(TransactionBehaviour<,>));
+            //            services.RemoveAll(typeof(IEventBus));
+            //            services.RemoveAll(typeof(IEventBusSubscriptionsManager));
+            //            services.RemoveAll(typeof(IRabbitMQPersistentConnection));
+
+            //            // Add in-memory contexts
+            //            services
+            //                .AddDbContext<OrderingContext>(options =>
+            //                {
+            //                    options.UseInMemoryDatabase("OrderingTestDB");
+            //                    // Configure to ignore any warnings
+            //                    options.ConfigureWarnings(warningBuilder =>
+            //                    {
+            //                        warningBuilder.Ignore(InMemoryEventId.TransactionIgnoredWarning);
+            //                    });
+            //                })
+            //                .AddDbContext<IntegrationEventLogContext>(options =>
+            //                {
+            //                    options.UseInMemoryDatabase("IntegrationEventLogTestDB");
+            //                    // Configure to ignore any warnings
+            //                    options.ConfigureWarnings(warningBuilder =>
+            //                    {
+            //                        warningBuilder.Ignore(InMemoryEventId.TransactionIgnoredWarning);
+            //                    });
+            //                });
+            //        });
+            //    });
+            //// Create the test http client
+            //TestHttpClient = appFactory.CreateClient();
+            //TestIdempotentHttpClient = appFactory.Server.CreateIdempotentClient();
+            //// Create the test server
+            //TestServer = appFactory.Server;
         }
     }
 }

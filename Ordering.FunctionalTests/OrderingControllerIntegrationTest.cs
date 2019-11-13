@@ -20,6 +20,7 @@ using Ordering.API.Application.IntegrationEvents;
 using Ordering.API.Application.IntegrationEvents.EventHandlers;
 using Ordering.API.Application.IntegrationEvents.Events;
 using Ordering.API.Application.Models;
+using Ordering.API.Controllers;
 using Ordering.API.Infrastructure.Services;
 using Ordering.Domain.AggregatesModel.OrderAggregate;
 using Ordering.Infrastructure;
@@ -31,6 +32,77 @@ namespace Ordering.FunctionalTests
 {
     public class OrderingControllerIntegrationTest : IntegrationTest
     {
+        [Fact(DisplayName = "CancelOrder - Correct command is sent with correct id")]
+        public async Task CancelOrder_verify_command_sent_with_correct_id()
+        {
+            // Init the mocl
+            using (var mock = AutoMock.GetLoose())
+            {
+                // Define required variables
+                var requestId = Guid.NewGuid().ToString();
+                var command = new CancelOrderCommand(12);
+
+                // Create mocks
+                mock.Mock<ILogger<Logger<OrdersController>>>();
+                var mediator = mock.Mock<IMediator>();
+
+                // Configure mock
+                mediator
+                    .Setup(m => m.Send(It.IsAny<IRequest<bool>>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(true)
+                    .Verifiable("Command was not sent.");
+                
+                // Create the controller
+                var controller = mock.Create<OrdersController>();
+                
+                // Call the create function
+                var result = await controller.CancelOrderAsync(command, requestId);
+                mediator.Verify(x => x.Send(It.Is<IdentifiedCommand<CancelOrderCommand, bool>>(y => y.Command.OrderNumber == 12), It.IsAny<CancellationToken>()), Times.Once);
+            }
+        }
+
+        [Fact(DisplayName = "CreateOrder - Correct command is sent with correct id)"]
+        public async Task CreateOrder_create_order_sent_with_correct_data()
+        {
+            using (var mock = AutoMock.GetLoose())
+            {
+                // Define required variables
+                var requestId = Guid.NewGuid().ToString();
+                var items = new List<BasketItem>
+                {
+                    new BasketItem() { Id = "1", OldUnitPrice = 10.0m, PictureUrl = "", ProductId = "1", ProductName = "Test Product 1", Quantity = 2, UnitPrice = 11.0m},
+                    new BasketItem() { Id = "2", OldUnitPrice = 10.0m, PictureUrl = "", ProductId = "3", ProductName = "Test Product 3", Quantity = 1, UnitPrice = 11.0m},
+                };
+                var command = new CreateOrderCommand(items, "userId", "userName", "city", "street", "state", "country", "zipCode",
+                    "cardNumber", "cardHolderName", DateTime.Today.AddYears(2), "759", 1);
+
+                // Create mock dependencies
+                var mediator = mock.Mock<IMediator>();
+                var repository = mock.Mock<IOrderRepository>();
+                mock.Mock<IOrderingIntegrationEventService>();                
+                mock.Mock<IIdentityService>();
+                mock.Mock<ILogger<CreateOrderCommandHandler>>();
+
+                // Configure mocks
+                mediator
+                    .Setup(m => m.Send(It.IsAny<IRequest<bool>>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(true)
+                    .Verifiable("Command was not sent.");
+                repository
+                    .Setup(x => x.UnitOfWork.SaveEntitiesAsync(CancellationToken.None)).Returns(Task.FromResult(true));
+
+                // Create the controller
+                var controller = mock.Create<OrdersController>();
+
+                // Call the create function
+                var result = await controller.CreateOrderAsync(command, requestId);
+                mediator.Verify(x => x.Send(It.Is<IdentifiedCommand<CreateOrderCommand, bool>>(y => y.Id.ToString() == requestId), It.IsAny<CancellationToken>()), Times.Once);
+            }
+        }
+
+        
+
+
         [Fact]
         public async Task CancelOrder_fake_order_number_returns_bad_request()
         {
@@ -39,69 +111,9 @@ namespace Ordering.FunctionalTests
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
 
-        [Fact]
-        public void CreateOrder_create_order_returns_success()
-        {
-            using (var mock = AutoMock.GetLoose())
-            {
-                var m = TestServer.Host.Services.GetService(typeof(IMediator));
-                mock.Mock<IMediator>();
-                mock.Mock<IOrderingIntegrationEventService>();
-                mock.Mock<IOrderRepository>().Setup(x => x.UnitOfWork.SaveEntitiesAsync(CancellationToken.None)).Returns(Task.FromResult(true));
-                mock.Mock<IIdentityService>();
-                mock.Mock<ILogger<CreateOrderCommandHandler>>();
+        
 
-                // Create the mock handler
-                var handler = mock.Create<CreateOrderCommandHandler>();
-
-
-                var items = new List<BasketItem>
-                {
-                    new BasketItem() { Id = "1", OldUnitPrice = 10.0m, PictureUrl = "", ProductId = "1", ProductName = "Test Product 1", Quantity = 2, UnitPrice = 11.0m},
-                    new BasketItem() { Id = "2", OldUnitPrice = 10.0m, PictureUrl = "", ProductId = "3", ProductName = "Test Product 3", Quantity = 1, UnitPrice = 11.0m},
-                };
-                var command = new CreateOrderCommand(items, "userId", "userName", "city", "street", "state", "country", "zipCode", 
-                    "cardNumber", "cardHolderName", DateTime.Today.AddYears(2), "759", 1);
-
-                var result = handler.Handle(command, CancellationToken.None).Result;
-
-                result.Should().Be(true);
-            }
-
-
-
-            //var mediatr = new Mock<IMediator>();
-            //var orderingEventService = new Mock<IOrderingIntegrationEventService>();
-            //var orderRepository = new Mock<IOrderRepository>();
-            //var identityService = new Mock<IIdentityService>();
-            //var logger = new Mock<ILogger<CreateOrderCommandHandler>>();
-
-            //var items = new List<BasketItem>
-            //{
-            //    new BasketItem() { Id = "1", OldUnitPrice = 10.0m, PictureUrl = "", ProductId = "1", ProductName = "Test Product 1", Quantity = 2, UnitPrice = 11.0m},
-            //    new BasketItem() { Id = "2", OldUnitPrice = 10.0m, PictureUrl = "", ProductId = "3", ProductName = "Test Product 3", Quantity = 1, UnitPrice = 11.0m},
-            //};
-            //var basket = new CustomerBasket("1") { Items = items };
-
-            //var command = new CreateOrderCommand(items, "userId", "userName", "city", "street", "state", "country", "zipCode", "cardNumber", "cardHolderName", DateTime.Today.AddYears(2),
-            //    "759", 1);
-            //var handler = new CreateOrderCommandHandler(mediatr, orderingEventService, orderRepository, identityService,
-            //    logger);
-
-            //var result = mediatr.Send(command).Result;
-
-            //result.Should().Be(true);
-
-            //eventBus.Publish(new UserCheckoutAcceptedIntegrationEvent("1", "billyvlachos", "Amsterdam", "Schaarsbergenstraat", "Noord-Holland", "Netherlands", "1107JV",
-            //    "375301410681000", "V. Vlachos", DateTime.Parse("01/12/22"), "8925", 2, "Billy Vlachos", requestId, basket));
-
-
-            //var content = new StringContent(BuildRealOrder(), Encoding.UTF8, "application/json");
-            //var response = await TestIdempotentHttpClient.PostAsync(Endpoints.Post.CreateOrder, content);
-            //response.StatusCode.Should().Be(HttpStatusCode.OK);
-        }
-
-        [Fact]
+        //[Fact]
         public async Task RequestManager_Test()
         {
             var requestManager = TestServer.Host.Services.GetService<IRequestManager>();
